@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OjoPrompt - Demo Interactiva</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .phone-container {
+            width: 375px;
+            height: 667px;
+            background: #1a1a1a;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            overflow: hidden;
+            position: relative;
+            border: 8px solid #2a2a2a;
+        }
+
+        .status-bar {
+            background: #000;
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .app-header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .app-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            background: #f5f5f5;
+            height: calc(100% - 44px - 80px);
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .preview-area {
+            background: #e0e0e0;
+            border-radius: 12px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 14px;
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .results {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            margin-top: 15px;
+        }
+
+        .results.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .results p {
+            color: #856404;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .badge.warning {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .badge.danger {
+            background: #dc3545;
+        }
+
+        @media (max-width: 420px) {
+            .phone-container {
+                width: 100%;
+                height: auto;
+                min-height: 100vh;
+                border-radius: 0;
+                border: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>••••●</span>
+        </div>
+
+        <div class="app-header">
+            <h1>👁️ OjoPrompt</h1>
+            <p>Detector de IA para Docentes</p>
+        </div>
+
+        <div class="content">
+            <div class="card">
+                <h3>📷 Captura de Contenido</h3>
+                <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                    Captura fotos, videos o sube documentos para analizar
+                </p>
+                
+                <div class="preview-area" id="previewArea">
+                    <span id="previewText">📸 Vista previa aparecerá aquí</span>
+                    <img id="previewImage" class="preview-image" alt="Preview">
+                </div>
+
+                <div class="button-group">
+                    <button class="btn" onclick="capturePhoto()">
+                        <span>📷</span> Foto
+                    </button>
+                    <button class="btn btn-secondary" onclick="captureVideo()">
+                        <span>🎥</span> Video
+                    </button>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 10px; color: #666;">Analizando contenido...</p>
+                </div>
+
+                <div class="results" id="results">
+                    <h4>🔍 Resultados del Análisis</h4>
+                    <p id="resultText"></p>
+                    <span class="badge" id="resultBadge"></span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>✨ Características</h3>
+                <ul class="feature-list">
+                    <li>
+                        <span>✅</span>
+                        <span>OCR en español (texto impreso y manuscrito)</span>
+                    </li>
+                    <li>
+                        <span>🤖</span>
+                        <span>Detección de contenido generado por IA</span>
+                    </li>
+                    <li>
+                        <span>📝</span>
+                        <span>Inferencia de prompts utilizados</span>
+                    </li>
+                    <li>
+                        <span>🔒</span>
+                        <span>Procesamiento local (privado)</span>
+                    </li>
+                    <li>
+                        <span>🎯</span>
+                        <span>Diseñado para docentes</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card" style="text-align: center; background: linear-gradient(135deg, #667eea22 0%, #764ba222 100%);">
+                <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
+                    📱 Esta es una demo web interactiva
+                </p>
+                <p style="font-size: 12px; color: #666;">
+                    La app real usará <strong>Kotlin + Jetpack Compose</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const examples = [
+            {
+                type: 'photo',
+                result: 'Texto detectado: "La inteligencia artificial transforma la educación..."',
+                prompt: 'Posible prompt: "Escribe un ensayo sobre IA en educación"',
+                confidence: 'alta',
+                badge: 'IA Detectada',
+                badgeClass: 'warning'
+            },
+            {
+                type: 'photo',
+                result: 'Texto manuscrito detectado. Estilo de escritura natural.',
+                prompt: 'No se detectaron patrones de IA en el contenido',
+                confidence: 'baja',
+                badge: 'Original',
+                badgeClass: ''
+            },
+            {
+                type: 'video',
+                result: '15 frames analizados. Contenido educativo sobre matemáticas.',
+                prompt: 'Posible uso de herramientas de edición con IA',
+                confidence: 'media',
+                badge: 'Revisión Sugerida',
+                badgeClass: 'warning'
+            }
+        ];
+
+        let currentExample = 0;
+
+        function capturePhoto() {
+            showLoading();
+            setTimeout(() => {
+                showResult(examples[currentExample % examples.length]);
+                currentExample++;
+            }, 2000);
+        }
+
+        function captureVideo() {
+            showLoading();
+            setTimeout(() => {
+                showResult(examples[2]);
+            }, 3000);
+        }
+
+        function showLoading() {
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('previewArea').style.background = '#667eea22';
+        }
+
+        function showResult(example) {
+            document.getElementById('loading').classList.remove('show');
+            
+            const resultText = `${example.result}<br><br><strong>Análisis:</strong> ${example.prompt}`;
+            document.getElementById('resultText').innerHTML = resultText;
+            
+            const badge = document.getElementById('resultBadge');
+            badge.textContent = example.badge;
+            badge.className = 'badge ' + example.badgeClass;
+            
+            document.getElementById('results').classList.add('show');
+        }
+
+        // Simular captura inicial después de 1 segundo
+        setTimeout(() => {
+            const preview = document.getElementById('previewText');
+            preview.textContent = '📸 Toca los botones para simular captura';
+        }, 1000);
+    </script>
+</body>
+</html>
